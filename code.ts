@@ -26,9 +26,9 @@ function renameLayer(layer: SceneNode) {
     case 'FRAME':
       // Handle auto layout mode
       if (layer.layoutMode === 'HORIZONTAL') {
-        typeName = 'layout-row';
-      } else if (layer.layoutMode === 'VERTICAL') {
         typeName = 'layout-column';
+      } else if (layer.layoutMode === 'VERTICAL') {
+        typeName = 'layout-row';
       } else {
         typeName = 'frame';
       }
@@ -74,9 +74,9 @@ function renameLayers(layers: readonly SceneNode[]) {
 // Function to rename the frame based on its layout mode
 function renameFrame(frame: FrameNode) {
   if (frame.layoutMode === 'HORIZONTAL') {
-    frame.name = 'layout-row';
-  } else if (frame.layoutMode === 'VERTICAL') {
     frame.name = 'layout-column';
+  } else if (frame.layoutMode === 'VERTICAL') {
+    frame.name = 'layout-row';
   } else {
     frame.name = 'frame';
   }
