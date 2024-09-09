@@ -6,7 +6,16 @@ function renameLayer(layer: SceneNode) {
     case 'TEXT':
       return;
     case 'RECTANGLE':
-      typeName = 'rectangle';
+      if (layer.fills && Array.isArray(layer.fills)) {
+        const hasImageFill = layer.fills.some(fill => fill.type === 'IMAGE');
+        if (hasImageFill) {
+          typeName = 'image';
+        } else {
+          typeName = 'rectangle';
+        }
+      } else {
+        typeName = 'rectangle';
+      }
       break;
     case 'ELLIPSE':
       typeName = 'ellipse';
@@ -59,7 +68,7 @@ function renameLayer(layer: SceneNode) {
   layer.name = typeName;
 }
 
-// Recursive function to rename all layers in a given node
+// Recursive function to rename all child layers within frames or groups
 function renameLayers(layers: readonly SceneNode[]) {
   layers.forEach(layer => {
     renameLayer(layer);
@@ -71,15 +80,16 @@ function renameLayers(layers: readonly SceneNode[]) {
   });
 }
 
-// Function to rename the frame based on its layout mode
-function renameFrame(frame: FrameNode) {
-  if (frame.layoutMode === 'HORIZONTAL') {
-    frame.name = 'layout-column';
-  } else if (frame.layoutMode === 'VERTICAL') {
-    frame.name = 'layout-row';
-  } else {
-    frame.name = 'frame';
-  }
+// Function to rename selected objects directly (not just frames)
+function renameSelectedObjects(selectedObjects: readonly SceneNode[]) {
+  selectedObjects.forEach(layer => {
+    renameLayer(layer);
+
+    // If the selected object has children (e.g., Frame or Group), rename them recursively
+    if ('children' in layer) {
+      renameLayers(layer.children);
+    }
+  });
 }
 
 // Show the UI with specific width and height
@@ -90,23 +100,14 @@ figma.ui.onmessage = async (msg: { type: string }) => {
   if (msg.type === 'rename-layers') {
     const selectedObjects = figma.currentPage.selection;
 
-    // Check if any selected objects are frames
-    const selectedFrames = selectedObjects.filter(obj => obj.type === 'FRAME') as FrameNode[];
-
-    if (selectedFrames.length > 0) {
-      // Process each selected frame
-      selectedFrames.forEach(frame => {
-        // Rename the frame itself
-        renameFrame(frame);
-
-        // Rename layers within the frame
-        renameLayers(frame.children);
-      });
+    if (selectedObjects.length > 0) {
+      // Rename selected objects and their children (if any)
+      renameSelectedObjects(selectedObjects);
 
       // Send a message back to the UI to indicate completion
       figma.ui.postMessage({ status: 'complete' });
     } else {
-      figma.notify("Please select at least one frame.");
+      figma.notify("Please select at least one object.");
       figma.ui.postMessage({ status: 'error' });
     }
   }

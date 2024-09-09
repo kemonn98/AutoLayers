@@ -63,7 +63,7 @@
   </style>
 </head>
 <body>
-  <p>AutoLayers Ver 1.0.1 by Kemon98</a></p>
+  <p>AutoLayers Ver 1.0.2 by Kemon98</a></p>
   <h2>Select frame to rename the layers</h2>
   <button id="run">Run AutoLayers</button>
   <p id="status"></p>
@@ -81,7 +81,7 @@
         document.getElementById('status').textContent = "Complete!";
       } else if (message.status === 'error') {
         document.getElementById('run').textContent = "Run AutoLayers";
-        document.getElementById('status').textContent = "Please select a frame.";
+        document.getElementById('status').textContent = "Please select an object.";
       }
     };
   </script>
