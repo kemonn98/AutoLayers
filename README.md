@@ -7,8 +7,9 @@
 
 ## 🚀 What's New in v1.1.0
 
+- **Screen Size Detection**: Automatically categorizes artboards by width ranges (desktop ≥1025px, tablet 601-1024px, mobile ≤600px)
 - **Semantic/Context-Aware Naming**: Automatically detects common UI patterns (header, footer, card, modal, etc.)
-- **Intelligent Dimension Detection**: Recognizes buttons, avatars, and dividers based on size
+- **Intelligent Dimension Detection**: Recognizes labels, buttons, avatars, and dividers based on size
 - **Smart Auto-Layout Analysis**: Detects button groups, navigation bars, and stacks
 - **Component Preservation**: Keeps component, instance, and variant names intact
 - **Modern Design System Alignment**: Names match Tailwind, Radix, shadcn, and Chakra UI conventions
@@ -32,8 +33,17 @@ The plugin intelligently recognizes common UI patterns:
 ### Smart Auto-Layout Naming
 
 - **Horizontal Layouts** → `flex-row`, `button-group`, or `nav`
-- **Vertical Layouts** → `stack` (modern design system term)
+- **Vertical Layouts** → `flex-col` (modern design system term)
 - **Static Frames** → `container` or semantic names
+
+### Screen Size Detection (Top-Level Frames)
+
+Automatically categorizes artboards/screens by width ranges:
+- **≥1025px** → `desktop-[width]` (e.g., `desktop-1920`, `desktop-1440`)
+- **601-1024px** → `tablet-[width]` (e.g., `tablet-834`, `tablet-768`)
+- **≤600px** → `mobile-[width]` (e.g., `mobile-375`, `mobile-390`, `mobile-428`)
+
+This flexible approach works for any screen size, not just predefined dimensions!
 
 ### Dimension-Based Detection
 
@@ -50,6 +60,7 @@ Automatically recognizes UI elements by their dimensions:
 |------------|-----------|-----------------|
 | Rectangle | `box` | → `avatar`, `badge`, `card`, `input`, `divider` |
 | Rectangle (with image) | `img` | - |
+| Frame (Top-level) | - | → `desktop-[width]`, `tablet-[width]`, `mobile-[width]` |
 | Frame (Horizontal) | `flex-row` | → `label`, `button`, `button-group`, `nav` |
 | Frame (Vertical) | `flex-col` | - |
 | Frame (No layout) | `container` | → `header`, `footer`, `hero`, `modal`, etc. |

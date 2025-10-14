@@ -98,8 +98,24 @@ function renameLayer(layer: SceneNode) {
       break;
       
     case 'FRAME':
-      // Enhanced auto layout detection with semantic naming
-      if (layer.layoutMode === 'HORIZONTAL') {
+      // Check if this is a top-level frame (artboard/screen)
+      if ('parent' in layer && layer.parent && layer.parent.type === 'PAGE' && 'width' in layer) {
+        const width = Math.round(layer.width);
+        
+        // Detect device type by width range
+        if (width >= 1025) {
+          typeName = `desktop-${width}`;
+        } else if (width >= 601 && width <= 1024) {
+          typeName = `tablet-${width}`;
+        } else if (width <= 600) {
+          typeName = `mobile-${width}`;
+        } else {
+          // Fallback (shouldn't reach here)
+          typeName = `frame-${width}`;
+        }
+      }
+      // Enhanced auto layout detection with semantic naming (for nested frames)
+      else if (layer.layoutMode === 'HORIZONTAL') {
         // Check if this is a button or label (horizontal layout with text and specific dimensions)
         if ('children' in layer && 'width' in layer && 'height' in layer) {
           const hasTextChild = layer.children.some(child => child.type === 'TEXT');
