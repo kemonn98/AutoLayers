@@ -39,25 +39,33 @@ function renameLayer(layer: SceneNode) {
       return; // Keep text layer names as is
       
     case 'RECTANGLE':
-      if (layer.fills && Array.isArray(layer.fills)) {
-        const hasImageFill = layer.fills.some(fill => fill.type === 'IMAGE');
-        if (hasImageFill) {
-          typeName = 'img';
-        } else {
-          // Check dimensions for common UI patterns
-          const width = layer.width;
-          const height = layer.height;
-          
-          // Detect common UI elements by dimensions
-          if (height <= 50 && width >= 60 && width <= 300) {
-            typeName = 'button'; // Button-like proportions
-          } else if (height <= 5 || width <= 5) {
-            typeName = 'divider'; // Very thin = divider
-          } else if (width <= 100 && height <= 100 && Math.abs(width - height) <= 20) {
-            typeName = 'avatar'; // Small square-ish shapes
+      // Type assertion for RectangleNode which has width/height properties
+      if ('width' in layer && 'height' in layer) {
+        if (layer.fills && Array.isArray(layer.fills)) {
+          const hasImageFill = layer.fills.some(fill => fill.type === 'IMAGE');
+          if (hasImageFill) {
+            typeName = 'img';
           } else {
-            typeName = 'box';
+            // Check dimensions for common UI patterns
+            const width = layer.width;
+            const height = layer.height;
+            
+            // Detect common UI elements by dimensions (conservative approach)
+            // Buttons: typically 40-60px height, 100-300px width
+            if (height >= 36 && height <= 60 && width >= 80 && width <= 320) {
+              typeName = 'button'; // Button-like proportions
+            } else if (height <= 3 || width <= 3) {
+              typeName = 'divider'; // Very thin = divider/separator
+            } else if (width <= 80 && height <= 80 && Math.abs(width - height) <= 20) {
+              typeName = 'avatar'; // Small square-ish shapes (profile pics, icons)
+            } else if (width >= 200 && height >= 150 && width <= 400 && height <= 400) {
+              typeName = 'card'; // Card-like proportions
+            } else {
+              typeName = 'box';
+            }
           }
+        } else {
+          typeName = 'box';
         }
       } else {
         typeName = 'box';
@@ -66,8 +74,12 @@ function renameLayer(layer: SceneNode) {
       
     case 'ELLIPSE':
       // Check if it's small and circular (likely an avatar or badge)
-      if (layer.width === layer.height && layer.width <= 100) {
-        typeName = 'avatar';
+      if ('width' in layer && 'height' in layer) {
+        if (layer.width === layer.height && layer.width <= 100) {
+          typeName = 'avatar';
+        } else {
+          typeName = 'circle';
+        }
       } else {
         typeName = 'circle';
       }
@@ -110,7 +122,7 @@ function renameLayer(layer: SceneNode) {
         }
       } else if (layer.layoutMode === 'VERTICAL') {
         // Stack is the modern term for vertical layouts (aligns with design systems)
-        typeName = 'stack';
+        typeName = 'flex-col';
       } else {
         // No auto layout - it's a positioned container
         typeName = 'container';

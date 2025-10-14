@@ -38,9 +38,10 @@ The plugin intelligently recognizes common UI patterns:
 ### Dimension-Based Detection
 
 Automatically recognizes UI elements by their dimensions:
-- **Buttons**: 50px height, 60-300px wide → `button`
-- **Avatars**: Small square shapes ≤100px → `avatar`
-- **Dividers**: Very thin elements ≤5px → `divider`
+- **Buttons**: 36-60px height, 80-320px wide → `button`
+- **Cards**: 200-400px width, 150-400px height → `card`
+- **Avatars**: Small square shapes ≤80px → `avatar`
+- **Dividers**: Very thin elements ≤3px → `divider`
 
 ## 📊 Complete Naming Reference
 
