@@ -2,6 +2,7 @@
   "name": "AutoLayers",
   "id": "1411822707031516886",
   "api": "1.0.0",
+  "version": "1.1.0",
   "main": "code.js",
   "capabilities": [],
   "enableProposedApi": false,

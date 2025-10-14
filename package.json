@@ -1,7 +1,7 @@
 {
   "name": "AutoLayers",
-  "version": "1.0.0",
-  "description": "Your Figma Plugin",
+  "version": "1.1.0",
+  "description": "Intelligent Figma plugin that automatically renames layers with developer-friendly, semantic names",
   "main": "code.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
