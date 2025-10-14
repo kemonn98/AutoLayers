@@ -17,10 +17,9 @@ function getSemanticName(layer: SceneNode, baseType: string): string {
     if (name.includes('list')) return 'list';
   }
   
-  // For rectangles, try to detect buttons or cards
+  // For rectangles, try to detect cards, badges, etc (but not buttons - those are frames)
   if (layer.type === 'RECTANGLE') {
     const name = layer.name.toLowerCase();
-    if (name.includes('button') || name.includes('btn') || name.includes('cta')) return 'button';
     if (name.includes('card')) return 'card';
     if (name.includes('badge') || name.includes('tag') || name.includes('chip')) return 'badge';
     if (name.includes('avatar') || name.includes('profile')) return 'avatar';
@@ -50,11 +49,8 @@ function renameLayer(layer: SceneNode) {
             const width = layer.width;
             const height = layer.height;
             
-            // Detect common UI elements by dimensions (conservative approach)
-            // Buttons: typically 40-60px height, 100-300px width
-            if (height >= 36 && height <= 60 && width >= 80 && width <= 320) {
-              typeName = 'button'; // Button-like proportions
-            } else if (height <= 3 || width <= 3) {
+            // Detect common UI elements by dimensions
+            if (height <= 3 || width <= 3) {
               typeName = 'divider'; // Very thin = divider/separator
             } else if (width <= 80 && height <= 80 && Math.abs(width - height) <= 20) {
               typeName = 'avatar'; // Small square-ish shapes (profile pics, icons)
@@ -104,18 +100,32 @@ function renameLayer(layer: SceneNode) {
     case 'FRAME':
       // Enhanced auto layout detection with semantic naming
       if (layer.layoutMode === 'HORIZONTAL') {
-        // Check for common horizontal patterns
-        if ('children' in layer && layer.children.length > 0) {
-          const childNames = layer.children.map(child => child.name.toLowerCase());
-          const hasButtons = childNames.some(name => name.includes('button') || name.includes('btn'));
-          const hasNav = childNames.some(name => name.includes('nav') || name.includes('menu'));
+        // Check if this is a button or label (horizontal layout with text and specific dimensions)
+        if ('children' in layer && 'width' in layer && 'height' in layer) {
+          const hasTextChild = layer.children.some(child => child.type === 'TEXT');
+          const width = layer.width;
+          const height = layer.height;
           
-          if (hasButtons) {
-            typeName = 'button-group';
-          } else if (hasNav) {
-            typeName = 'nav';
+          // Label detection: horizontal layout + text + small height (below 40px)
+          if (hasTextChild && height < 40) {
+            typeName = 'label';
+          }
+          // Button detection: horizontal layout + text + button dimensions
+          else if (hasTextChild && height >= 40 && height <= 60 && width >= 80 && width <= 320) {
+            typeName = 'button';
           } else {
-            typeName = 'flex-row'; // Modern flexbox terminology
+            // Check for other common horizontal patterns
+            const childNames = layer.children.map(child => child.name.toLowerCase());
+            const hasButtons = childNames.some(name => name.includes('button') || name.includes('btn'));
+            const hasNav = childNames.some(name => name.includes('nav') || name.includes('menu'));
+            
+            if (hasButtons) {
+              typeName = 'button-group';
+            } else if (hasNav) {
+              typeName = 'nav';
+            } else {
+              typeName = 'flex-row'; // Modern flexbox terminology
+            }
           }
         } else {
           typeName = 'flex-row';

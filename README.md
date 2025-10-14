@@ -27,7 +27,7 @@ The plugin intelligently recognizes common UI patterns:
 - `section`, `wrapper`, `grid`, `list`
 
 **For Rectangles:**
-- `button`, `card`, `badge`, `avatar`, `input`
+- `card`, `badge`, `avatar`, `input`
 
 ### Smart Auto-Layout Naming
 
@@ -38,19 +38,20 @@ The plugin intelligently recognizes common UI patterns:
 ### Dimension-Based Detection
 
 Automatically recognizes UI elements by their dimensions:
-- **Buttons**: 36-60px height, 80-320px wide → `button`
-- **Cards**: 200-400px width, 150-400px height → `card`
-- **Avatars**: Small square shapes ≤80px → `avatar`
+- **Labels**: Frames with horizontal layout + text + height <40px → `label`
+- **Buttons**: Frames with horizontal layout + text + 40-60px height, 80-320px wide → `button`
+- **Cards**: Rectangles 200-400px width, 150-400px height → `card`
+- **Avatars**: Small square rectangles/circles ≤80px → `avatar`
 - **Dividers**: Very thin elements ≤3px → `divider`
 
 ## 📊 Complete Naming Reference
 
 | Figma Type | Base Name | Smart Detection |
 |------------|-----------|-----------------|
-| Rectangle | `box` | → `button`, `avatar`, `badge`, `card`, `input`, `divider` |
+| Rectangle | `box` | → `avatar`, `badge`, `card`, `input`, `divider` |
 | Rectangle (with image) | `img` | - |
-| Frame (Horizontal) | `flex-row` | → `button-group`, `nav` |
-| Frame (Vertical) | `stack` | - |
+| Frame (Horizontal) | `flex-row` | → `label`, `button`, `button-group`, `nav` |
+| Frame (Vertical) | `flex-col` | - |
 | Frame (No layout) | `container` | → `header`, `footer`, `hero`, `modal`, etc. |
 | Ellipse | `circle` | → `avatar` (if small) |
 | Vector | `icon` | - |
