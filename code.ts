@@ -82,15 +82,15 @@ function renameLayer(layer: SceneNode) {
       break;
       
     case 'POLYGON':
-      typeName = 'shape';
+      typeName = 'polygon';
       break;
       
     case 'STAR':
-      typeName = 'icon';
+      typeName = 'star';
       break;
       
     case 'VECTOR':
-      typeName = 'icon'; // Most vectors are icons in modern UI
+      typeName = 'vector'; // Most vectors are icons in modern UI
       break;
       
     case 'LINE':
@@ -151,7 +151,7 @@ function renameLayer(layer: SceneNode) {
         typeName = 'flex-col';
       } else {
         // No auto layout - it's a positioned container
-        typeName = 'container';
+        typeName = 'frame';
       }
       break;
       
