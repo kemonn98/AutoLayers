@@ -1,3 +1,52 @@
+// Helper function to apply ordered naming for frames within device containers
+function applyOrderedNaming(deviceFrame: SceneNode) {
+  if (!('children' in deviceFrame) || deviceFrame.children.length === 0) {
+    return;
+  }
+
+  const childFrames = deviceFrame.children.filter(child => child.type === 'FRAME');
+  
+  if (childFrames.length === 0) {
+    return;
+  }
+
+  // Name all frames as "section" by default
+  childFrames.forEach(frame => {
+    frame.name = 'section';
+  });
+
+  // Name the first frame based on height
+  const firstFrame = childFrames[0];
+  if ('height' in firstFrame) {
+    if (firstFrame.height < 100) {
+      firstFrame.name = 'navbar';
+      
+      // If first frame is navbar and there's a second frame, name it as header
+      if (childFrames.length > 1) {
+        childFrames[1].name = 'header';
+      }
+    } else {
+      firstFrame.name = 'header';
+    }
+  }
+
+  // Check if the last child is a component (not just a frame)
+  const allChildren = deviceFrame.children;
+  const lastChild = allChildren[allChildren.length - 1];
+  const isLastChildComponent = lastChild.type === 'COMPONENT' || lastChild.type === 'INSTANCE';
+  
+  if (isLastChildComponent) {
+    // If the last child is a component, name the last frame as "section" instead of "footer"
+    const lastFrame = childFrames[childFrames.length - 1];
+    lastFrame.name = 'section';
+    // Don't rename the component itself
+  } else {
+    // If the last child is not a component, name the last frame as "footer"
+    const lastFrame = childFrames[childFrames.length - 1];
+    lastFrame.name = 'footer';
+  }
+}
+
 // Helper function to detect semantic context based on layer properties
 function getSemanticName(layer: SceneNode, baseType: string): string {
   // For frames, try to detect common UI patterns from existing names
@@ -104,15 +153,18 @@ function renameLayer(layer: SceneNode) {
         
         // Detect device type by width range
         if (width >= 1025) {
-          typeName = `desktop-${width}`;
+          typeName = `[desktop-${width}]`;
         } else if (width >= 601 && width <= 1024) {
-          typeName = `tablet-${width}`;
+          typeName = `[tablet-${width}]`;
         } else if (width <= 600) {
-          typeName = `mobile-${width}`;
+          typeName = `[mobile-${width}]`;
         } else {
           // Fallback (shouldn't reach here)
-          typeName = `frame-${width}`;
+          typeName = `[frame-${width}]`;
         }
+        
+        // Apply ordered naming to child frames within device containers
+        applyOrderedNaming(layer);
       }
       // Enhanced auto layout detection with semantic naming (for nested frames)
       else if (layer.layoutMode === 'HORIZONTAL') {
@@ -193,6 +245,15 @@ function renameLayer(layer: SceneNode) {
 // Recursive function to rename all child layers within frames or groups
 function renameLayers(layers: readonly SceneNode[]) {
   layers.forEach(layer => {
+    // Skip renaming if this frame has already been processed by ordered naming
+    if (layer.type === 'FRAME' && (layer.name === 'section' || layer.name === 'navbar' || layer.name === 'header' || layer.name === 'footer')) {
+      // Still process children recursively
+      if ('children' in layer) {
+        renameLayers(layer.children);
+      }
+      return;
+    }
+
     renameLayer(layer);
 
     // Recursively rename layers within frames or groups

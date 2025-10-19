@@ -2,8 +2,16 @@
 
 > Intelligent Figma plugin that automatically renames layers with developer-friendly, semantic names
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/yourusername/autolayers)
+[![Version](https://img.shields.io/badge/version-1.1.2-blue.svg)](https://github.com/yourusername/autolayers)
 [![Figma](https://img.shields.io/badge/Figma-Plugin-green.svg)](https://www.figma.com/community/plugin/autolayers)
+
+## 🚀 What's New in v1.1.2
+
+- **Ordered Naming System**: Intelligent frame ordering within device containers
+- **Smart Navbar/Header Detection**: First frame <100px height → "navbar", second frame → "header"
+- **Automatic Section Naming**: All middle frames named "section" for consistent structure
+- **Footer Detection**: Last frame automatically named "footer"
+- **Enhanced Device Container Logic**: Better organization for desktop/tablet/mobile layouts
 
 ## 🚀 What's New in v1.1.0
 
@@ -44,6 +52,26 @@ Automatically categorizes artboards/screens by width ranges:
 - **≤600px** → `mobile-[width]` (e.g., `mobile-375`, `mobile-390`, `mobile-428`)
 
 This flexible approach works for any screen size, not just predefined dimensions!
+
+### Ordered Naming System (NEW in v1.1.2)
+
+For device containers (desktop/tablet/mobile frames), the plugin now applies intelligent ordering:
+
+**Frame Ordering Logic:**
+- **First Frame**: Height <100px → `navbar`, Height ≥100px → `header`
+- **Second Frame**: If first is `navbar` → automatically named `header`
+- **Middle Frames**: All named `section`
+- **Last Frame**: Always named `footer`
+
+**Example Structure:**
+```
+desktop-1440
+├── navbar (height <100px)
+├── header (auto-named if navbar exists)
+├── section
+├── section
+└── footer
+```
 
 ### Dimension-Based Detection
 
@@ -167,6 +195,14 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Run linter before committing: `npm run lint:fix`
 
 ## 📝 Changelog
+
+### v1.1.2 (2025)
+- ✨ **NEW**: Ordered naming system for device containers
+- ✨ **NEW**: Smart navbar/header detection based on height
+- ✨ **NEW**: Automatic section naming for middle frames
+- ✨ **NEW**: Footer detection for last frame
+- 🔧 Enhanced device container logic for better organization
+- 📚 Updated documentation with ordered naming examples
 
 ### v1.1.0 (2025)
 - ✨ Added semantic/context-aware naming
