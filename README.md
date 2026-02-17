@@ -2,16 +2,14 @@
 
 > Intelligent Figma plugin that automatically renames layers with developer-friendly, semantic names
 
-[![Version](https://img.shields.io/badge/version-1.1.2-blue.svg)](https://github.com/yourusername/autolayers)
+[![Version](https://img.shields.io/badge/version-1.1.3-blue.svg)](https://github.com/yourusername/autolayers)
 [![Figma](https://img.shields.io/badge/Figma-Plugin-green.svg)](https://www.figma.com/community/plugin/autolayers)
 
-## 🚀 What's New in v1.1.2
+## 🚀 What's New in v1.1.3
 
-- **Ordered Naming System**: Intelligent frame ordering within device containers
-- **Smart Navbar/Header Detection**: First frame <100px height → "navbar", second frame → "header"
-- **Automatic Section Naming**: All middle frames named "section" for consistent structure
-- **Footer Detection**: Last frame automatically named "footer"
-- **Enhanced Device Container Logic**: Better organization for desktop/tablet/mobile layouts
+- **Expanded Semantic Naming Library**: 40+ patterns including `btn`/`button`, `img`/`image`/`photo`, `icon`, `nav`/`menu`, `dropdown`/`select`, `checkbox`, `radio`, `switch`/`toggle`, `accordion`, `tooltip`, `toast`/`snackbar`, `alert`/`banner`, `spinner`/`loader`, `skeleton`, `breadcrumb`, `pagination`, and more
+- **VECTOR Divider Detection**: Vectors with width or height 0 are now named `divider`
+- **Simplified Naming**: Removed ordered naming system for a cleaner, name-based approach—layers are renamed based on type and semantic detection from existing names
 
 ## 🚀 What's New in v1.1.0
 
@@ -28,75 +26,56 @@ AutoLayers transforms your Figma layer names from generic defaults to meaningful
 
 ### Semantic Detection
 
-The plugin intelligently recognizes common UI patterns:
+The plugin recognizes 40+ common UI patterns from layer names. If a layer name contains these terms, it will be renamed accordingly:
 
-**For Frames:**
-- `header`, `footer`, `sidebar`
-- `hero`, `card`, `modal`
-- `section`, `wrapper`, `grid`, `list`
+**Layout & Structure:** `header`, `footer`, `sidebar`, `section`, `wrapper`, `container`, `grid`, `list`
 
-**For Rectangles:**
-- `card`, `badge`, `avatar`, `input`
+**Interactive:** `btn`/`button`, `link`, `nav`/`menu`, `tab`, `dropdown`/`select`, `checkbox`, `radio`, `switch`/`toggle`, `accordion`
+
+**Content & Media:** `img`/`image`/`photo`/`picture`/`thumbnail`, `icon`, `avatar`, `badge`/`tag`/`chip`
+
+**Forms & Inputs:** `input`/`field`/`form`, `label`, `search`, `filter`
+
+**Overlays & Feedback:** `modal`/`dialog`/`popup`, `tooltip`, `toast`/`snackbar`, `alert`/`banner`, `spinner`/`loader`, `skeleton`
+
+**Cards & Blocks:** `hero`, `card`, `divider`/`separator`, `breadcrumb`, `pagination`
+
+**For Rectangles:** `card`, `badge`, `avatar`, `input` (in addition to dimension-based detection)
 
 ### Smart Auto-Layout Naming
 
-- **Horizontal Layouts** → `flex-row`, `button-group`, or `nav`
-- **Vertical Layouts** → `flex-col` (modern design system term)
-- **Static Frames** → `container` or semantic names
+- **Horizontal Layouts** → `flex-row`
+- **Vertical Layouts** → `flex-col`
+- **Static Frames** → `frame`
 
-### Screen Size Detection (Top-Level Frames)
+Semantic detection can override these with more specific names (e.g., `button`, `nav`) when the layer name contains matching terms.
 
-Automatically categorizes artboards/screens by width ranges:
-- **≥1025px** → `desktop-[width]` (e.g., `desktop-1920`, `desktop-1440`)
-- **601-1024px** → `tablet-[width]` (e.g., `tablet-834`, `tablet-768`)
-- **≤600px** → `mobile-[width]` (e.g., `mobile-375`, `mobile-390`, `mobile-428`)
+### Top-Level Frame Detection
 
-This flexible approach works for any screen size, not just predefined dimensions!
-
-### Ordered Naming System (NEW in v1.1.2)
-
-For device containers (desktop/tablet/mobile frames), the plugin now applies intelligent ordering:
-
-**Frame Ordering Logic:**
-- **First Frame**: Height <100px → `navbar`, Height ≥100px → `header`
-- **Second Frame**: If first is `navbar` → automatically named `header`
-- **Middle Frames**: All named `section`
-- **Last Frame**: Always named `footer`
-
-**Example Structure:**
-```
-desktop-1440
-├── navbar (height <100px)
-├── header (auto-named if navbar exists)
-├── section
-├── section
-└── footer
-```
+Artboards and screens are named `[frame-width]` (e.g., `[frame-1920]`, `[frame-375]`).
 
 ### Dimension-Based Detection
 
-Automatically recognizes UI elements by their dimensions:
-- **Labels**: Frames with horizontal layout + text + height <40px → `label`
-- **Buttons**: Frames with horizontal layout + text + 40-60px height, 80-320px wide → `button`
-- **Cards**: Rectangles 200-400px width, 150-400px height → `card`
-- **Avatars**: Small square rectangles/circles ≤80px → `avatar`
-- **Dividers**: Very thin elements ≤3px → `divider`
+- **Dividers**: Rectangles ≤3px thick, vectors with width/height 0, or lines → `divider`
+- **Images**: Rectangles with image fill → `img`
+- **Rectangles**: Default → `square`
 
 ## 📊 Complete Naming Reference
 
 | Figma Type | Base Name | Smart Detection |
 |------------|-----------|-----------------|
-| Rectangle | `box` | → `avatar`, `badge`, `card`, `input`, `divider` |
+| Rectangle | `square` | → `avatar`, `badge`, `card`, `input`, `divider` |
 | Rectangle (with image) | `img` | - |
-| Frame (Top-level) | - | → `desktop-[width]`, `tablet-[width]`, `mobile-[width]` |
-| Frame (Horizontal) | `flex-row` | → `label`, `button`, `button-group`, `nav` |
-| Frame (Vertical) | `flex-col` | - |
-| Frame (No layout) | `container` | → `header`, `footer`, `hero`, `modal`, etc. |
-| Ellipse | `circle` | → `avatar` (if small) |
-| Vector | `icon` | - |
-| Star | `icon` | - |
+| Rectangle (≤3px thick) | `divider` | - |
+| Frame (Top-level) | - | → `[frame-width]` |
+| Frame (Horizontal) | `flex-row` | → 40+ semantic names (button, nav, etc.) |
+| Frame (Vertical) | `flex-col` | → 40+ semantic names |
+| Frame (No layout) | `frame` | → 40+ semantic names |
+| Ellipse | `circle` | - |
+| Vector | `vector` | → `divider` (if width/height 0) |
+| Star | `star` | - |
 | Boolean Operation | `icon` | - |
-| Polygon | `shape` | - |
+| Polygon | `polygon` | - |
 | Line | `divider` | - |
 | Group | `group` | - |
 | Component | *preserved* | Original name kept |
@@ -196,13 +175,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📝 Changelog
 
-### v1.1.2 (2025)
-- ✨ **NEW**: Ordered naming system for device containers
-- ✨ **NEW**: Smart navbar/header detection based on height
-- ✨ **NEW**: Automatic section naming for middle frames
-- ✨ **NEW**: Footer detection for last frame
-- 🔧 Enhanced device container logic for better organization
-- 📚 Updated documentation with ordered naming examples
+### v1.1.3 (2025)
+- ✨ **NEW**: Expanded semantic naming library (40+ patterns: btn/button, img/image, icon, nav, dropdown, checkbox, tooltip, toast, skeleton, etc.)
+- ✨ **NEW**: VECTOR divider detection (width or height 0 → divider)
+- 🔧 Removed ordered naming system (navbar/header/footer auto-naming)
+- 📚 Updated documentation to match current behavior
 
 ### v1.1.0 (2025)
 - ✨ Added semantic/context-aware naming

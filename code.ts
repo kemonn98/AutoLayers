@@ -1,69 +1,55 @@
-// Helper function to apply ordered naming for frames within device containers
-function applyOrderedNaming(deviceFrame: SceneNode) {
-  if (!('children' in deviceFrame) || deviceFrame.children.length === 0) {
-    return;
-  }
-
-  const childFrames = deviceFrame.children.filter(child => child.type === 'FRAME');
-  
-  if (childFrames.length === 0) {
-    return;
-  }
-
-  // Name all frames as "section" by default
-  childFrames.forEach(frame => {
-    frame.name = 'section';
-  });
-
-  // Name the first frame based on height
-  const firstFrame = childFrames[0];
-  if ('height' in firstFrame) {
-    if (firstFrame.height < 100) {
-      firstFrame.name = 'navbar';
-      
-      // If first frame is navbar and there's a second frame, name it as header
-      if (childFrames.length > 1) {
-        childFrames[1].name = 'header';
-      }
-    } else {
-      firstFrame.name = 'header';
-    }
-  }
-
-  // Check if the last child is a component (not just a frame)
-  const allChildren = deviceFrame.children;
-  const lastChild = allChildren[allChildren.length - 1];
-  const isLastChildComponent = lastChild.type === 'COMPONENT' || lastChild.type === 'INSTANCE';
-  
-  if (isLastChildComponent) {
-    // If the last child is a component, name the last frame as "section" instead of "footer"
-    const lastFrame = childFrames[childFrames.length - 1];
-    lastFrame.name = 'section';
-    // Don't rename the component itself
-  } else {
-    // If the last child is not a component, name the last frame as "footer"
-    const lastFrame = childFrames[childFrames.length - 1];
-    lastFrame.name = 'footer';
-  }
-}
-
 // Helper function to detect semantic context based on layer properties
 function getSemanticName(layer: SceneNode, baseType: string): string {
   // For frames, try to detect common UI patterns from existing names
   if (layer.type === 'FRAME') {
     const name = layer.name.toLowerCase();
-    
-    // Check for common semantic patterns in existing name
-    if (name.includes('header') || name.includes('navbar') || name.includes('topbar')) return 'header';
+
+    // Layout & structure
+    if (name.includes('header') || name.includes('topbar')) return 'header';
     if (name.includes('footer') || name.includes('bottombar')) return 'footer';
     if (name.includes('sidebar') || name.includes('aside')) return 'sidebar';
-    if (name.includes('hero')) return 'hero';
-    if (name.includes('card')) return 'card';
-    if (name.includes('modal') || name.includes('dialog') || name.includes('popup')) return 'modal';
     if (name.includes('section')) return 'section';
-    if (name.includes('wrapper')) return 'wrapper';
+    if (name.includes('wrapper') || name.includes('container')) return 'wrapper';
     if (name.includes('grid')) return 'grid';
     if (name.includes('list')) return 'list';
+
+    // Interactive components
+    if (name.includes('btn') || name.includes('button')) return 'button';
+    if (name.includes('link')) return 'link';
+    if (name.includes('nav') || name.includes('menu')) return 'nav';
+    if (name.includes('tab')) return 'tab';
+    if (name.includes('dropdown') || name.includes('select')) return 'dropdown';
+    if (name.includes('checkbox') || name.includes('check')) return 'checkbox';
+    if (name.includes('radio')) return 'radio';
+    if (name.includes('switch') || name.includes('toggle')) return 'switch';
+    if (name.includes('accordion')) return 'accordion';
+
+    // Content & media
+    if (name.includes('img') || name.includes('image') || name.includes('photo') || name.includes('picture') || name.includes('thumbnail')) return 'img';
+    if (name.includes('icon')) return 'icon';
+    if (name.includes('avatar')) return 'avatar';
+    if (name.includes('badge') || name.includes('tag') || name.includes('chip')) return 'badge';
+
+    // Forms & inputs
+    if (name.includes('input') || name.includes('field') || name.includes('form')) return 'input';
+    if (name.includes('label')) return 'label';
+    if (name.includes('search')) return 'search';
+    if (name.includes('filter')) return 'filter';
+
+    // Overlays & feedback
+    if (name.includes('modal') || name.includes('dialog') || name.includes('popup')) return 'modal';
+    if (name.includes('tooltip')) return 'tooltip';
+    if (name.includes('toast') || name.includes('snackbar')) return 'toast';
+    if (name.includes('alert') || name.includes('banner')) return 'alert';
+    if (name.includes('spinner') || name.includes('loader')) return 'spinner';
+    if (name.includes('skeleton')) return 'skeleton';
+
+    // Cards & blocks
+    if (name.includes('hero')) return 'hero';
+    if (name.includes('card')) return 'card';
+    if (name.includes('divider') || name.includes('separator')) return 'divider';
+    if (name.includes('breadcrumb')) return 'breadcrumb';
+    if (name.includes('pagination')) return 'pagination';
   }
   
   // For rectangles, try to detect cards, badges, etc (but not buttons - those are frames)
@@ -101,33 +87,20 @@ function renameLayer(layer: SceneNode) {
             // Detect common UI elements by dimensions
             if (height <= 3 || width <= 3) {
               typeName = 'divider'; // Very thin = divider/separator
-            } else if (width <= 80 && height <= 80 && Math.abs(width - height) <= 20) {
-              typeName = 'avatar'; // Small square-ish shapes (profile pics, icons)
-            } else if (width >= 200 && height >= 150 && width <= 400 && height <= 400) {
-              typeName = 'card'; // Card-like proportions
             } else {
-              typeName = 'box';
+              typeName = 'square';
             }
           }
         } else {
-          typeName = 'box';
+          typeName = 'square';
         }
       } else {
-        typeName = 'box';
+        typeName = 'square';
       }
       break;
       
     case 'ELLIPSE':
-      // Check if it's small and circular (likely an avatar or badge)
-      if ('width' in layer && 'height' in layer) {
-        if (layer.width === layer.height && layer.width <= 100) {
-          typeName = 'avatar';
-        } else {
-          typeName = 'circle';
-        }
-      } else {
-        typeName = 'circle';
-      }
+      typeName = 'circle';
       break;
       
     case 'POLYGON':
@@ -139,7 +112,11 @@ function renameLayer(layer: SceneNode) {
       break;
       
     case 'VECTOR':
-      typeName = 'vector'; // Most vectors are icons in modern UI
+      if ('width' in layer && 'height' in layer && (layer.width === 0 || layer.height === 0)) {
+        typeName = 'divider';
+      } else {
+        typeName = 'vector'; // Most vectors are icons in modern UI
+      }
       break;
       
     case 'LINE':
@@ -153,51 +130,19 @@ function renameLayer(layer: SceneNode) {
         
         // Detect device type by width range
         if (width >= 1025) {
-          typeName = `[desktop-${width}]`;
+          typeName = `[frame-${width}]`;
         } else if (width >= 601 && width <= 1024) {
-          typeName = `[tablet-${width}]`;
+          typeName = `[frame-${width}]`;
         } else if (width <= 600) {
-          typeName = `[mobile-${width}]`;
+          typeName = `[frame-${width}]`;
         } else {
           // Fallback (shouldn't reach here)
           typeName = `[frame-${width}]`;
         }
-        
-        // Apply ordered naming to child frames within device containers
-        applyOrderedNaming(layer);
       }
       // Enhanced auto layout detection with semantic naming (for nested frames)
       else if (layer.layoutMode === 'HORIZONTAL') {
-        // Check if this is a button or label (horizontal layout with text and specific dimensions)
-        if ('children' in layer && 'width' in layer && 'height' in layer) {
-          const hasTextChild = layer.children.some(child => child.type === 'TEXT');
-          const width = layer.width;
-          const height = layer.height;
-          
-          // Label detection: horizontal layout + text + small height (below 40px)
-          if (hasTextChild && height < 40) {
-            typeName = 'label';
-          }
-          // Button detection: horizontal layout + text + button dimensions
-          else if (hasTextChild && height >= 40 && height <= 60 && width >= 80 && width <= 320) {
-            typeName = 'button';
-          } else {
-            // Check for other common horizontal patterns
-            const childNames = layer.children.map(child => child.name.toLowerCase());
-            const hasButtons = childNames.some(name => name.includes('button') || name.includes('btn'));
-            const hasNav = childNames.some(name => name.includes('nav') || name.includes('menu'));
-            
-            if (hasButtons) {
-              typeName = 'button-group';
-            } else if (hasNav) {
-              typeName = 'nav';
-            } else {
-              typeName = 'flex-row'; // Modern flexbox terminology
-            }
-          }
-        } else {
-          typeName = 'flex-row';
-        }
+        typeName = 'flex-row';
       } else if (layer.layoutMode === 'VERTICAL') {
         // Stack is the modern term for vertical layouts (aligns with design systems)
         typeName = 'flex-col';
@@ -245,15 +190,6 @@ function renameLayer(layer: SceneNode) {
 // Recursive function to rename all child layers within frames or groups
 function renameLayers(layers: readonly SceneNode[]) {
   layers.forEach(layer => {
-    // Skip renaming if this frame has already been processed by ordered naming
-    if (layer.type === 'FRAME' && (layer.name === 'section' || layer.name === 'navbar' || layer.name === 'header' || layer.name === 'footer')) {
-      // Still process children recursively
-      if ('children' in layer) {
-        renameLayers(layer.children);
-      }
-      return;
-    }
-
     renameLayer(layer);
 
     // Recursively rename layers within frames or groups
